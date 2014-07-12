@@ -27,6 +27,10 @@ public class Players {
         return playerList;
     }
     
+    public int sizePlayer(){
+        return playerList.size();
+    }
+    
     public boolean isEmpty(){
         return playerList.size() <= 0;
     }

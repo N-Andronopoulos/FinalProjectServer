@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 public class FinalProjectClient {
     private Players ppl;
+    private GameLogic gm;
     private ServerSocket ssock;
     private Socket sock;
     private ObjectInputStream input;
