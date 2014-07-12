@@ -4,19 +4,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Players {
-    private ArrayList<Player> playerList;
-    private int number = 0;
-    private String[] colours = {"White","Black","Red","Blue"};
+    private final ArrayList<Player> playerList;
+    private final String[] colours = {"White","Black","Red","Blue"};
     
     Players(){
         playerList = new ArrayList<>();
     }
 
     public boolean addPlayer(Socket sok, String name, int colour) {
-        if(number > 3)      
-            return false;
-        else
-            return playerList.add(new Player(sok, name, colour));
+        return playerList.add(new Player(sok, name, colour));
     }
     
     public boolean rmPlayer(Socket sok, String name, int color){
@@ -33,6 +29,10 @@ public class Players {
     
     public boolean isEmpty(){
         return playerList.size() <= 0;
+    }
+
+    void clear() {
+        playerList.clear();
     }
 
     class Player {
