@@ -16,11 +16,19 @@ public class GameLogic {
     }
     
     public boolean addPlayer(Socket sok,String name,int color){
-        return ppl.addPlayer(sok, name, color);
+        if(ppl.sizePlayer() > 3){
+            return ppl.addPlayer(sok, name, color);
+        }else
+            return false;       
     }
     
     public boolean rmPlayer(Socket sok, String name, int colour){
-        return ppl.rmPlayer(sok, name, colour);
+        if(ppl.sizePlayer() <= 0){
+            endGame();
+            System.out.println("Game ENDED!");
+            return true;
+        }else
+            return ppl.rmPlayer(sok, name, colour);
     }
     
     public Players lsPlayer(){
