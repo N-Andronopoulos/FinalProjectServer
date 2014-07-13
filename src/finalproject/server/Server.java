@@ -36,7 +36,8 @@ Server(int port) {
 	    ppl.addPlayer(sock, playerData[0], Integer.valueOf(playerData[1]));
 	    runTime = new PlayerRunTime(sock, ppl);
 	    connections.add(runTime);
-	    new Thread(runTime).start();
+	    Thread thr = new Thread(runTime);
+	    thr.start();
 	}
     } catch (IOException | ClassNotFoundException ex) {
 	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
