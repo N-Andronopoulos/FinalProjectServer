@@ -34,10 +34,10 @@ Server(int port) {
 	//Exchange info
 	currentPlayer = (Player) input.readObject();
 	addPlayer(currentPlayer);
+	System.out.println("Game Master Connected: "+currentPlayer.name);
 	output.writeObject("OK");
 	gms = (GameSettings) input.readObject();
 	output.writeObject("OK");
-
 	while (gms.getPlayers() != playerList.size()) {
 	    sock = ssock.accept();
 	    input = new ObjectInputStream(sock.getInputStream());
@@ -46,9 +46,11 @@ Server(int port) {
 	    addPlayer(currentPlayer);
 	    output.writeObject("OK");
 	}
+	syncGame();
 	announce("Game Starts!");
 	StartGame();
-	
+	endGame();
+
     } catch (IOException | ClassNotFoundException ex) {
 	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -67,9 +69,10 @@ private void StartGame() {
     while(true){
 	for(Player p : playerList){
 	    //ampla
+	    
 	}
     }
-    
+
 }
 
 private void announce(String data) throws IOException{
@@ -93,6 +96,24 @@ private Object readData(Socket x) throws IOException, ClassNotFoundException{
     output = new ObjectOutputStream(x.getOutputStream());
     input = new ObjectInputStream(x.getInputStream());
     return input.readObject();
+}
+
+private void endGame() throws IOException{
+    announce("Game Over");
+    for(Player x: playerList){
+	x.getSocket().close();
+	//CAUTION HERE... may cause something to go wrong here....
+	playerList.remove(x);
+    }
+    System.out.println("Game Ended, player disconnected. Thanks for playing");
+}
+
+private void syncGame() throws IOException {
+    for(Player x: playerList){
+	sendData(x.getSocket(), gms);
+	sendData(x.getSocket(), playerList);
+    }
+    System.out.println("Setup Complete! Starting Game...");
 }
 
 }
