@@ -11,33 +11,38 @@ import java.util.logging.Logger;
 
 public class Server {
 
-private Players ppl;
-private GameLogic gm;
+private PlayerList ppl;
 private ServerSocket ssock;
 private Socket sock;
 private ObjectInputStream input;
 private ObjectOutputStream output;
 private String[] playerData;
 private ArrayList<PlayerRunTime> connections;
-private PlayerRunTime runTime;
+private GameSettings gms;
+private Player currentPlayer;
 
 Server(int port) {
     try {
-	ppl = new Players();
+	ppl = new PlayerList();
 	ssock = new ServerSocket(port);
 	System.out.println("Listening");
 	connections = new ArrayList();
-	while (true) {
+	//First Player sets the game settings
+	sock = ssock.accept();
+	input = new ObjectInputStream(sock.getInputStream());
+	output = new ObjectOutputStream(sock.getOutputStream());
+	//Exchange info
+	currentPlayer = (Player) input.readObject();
+	output.writeObject("OK");
+	gms = (GameSettings) input.readObject();
+	output.writeObject("OK");
+	while (gms.getPlayers() != ppl.size()) {
 	    sock = ssock.accept();
 	    input = new ObjectInputStream(sock.getInputStream());
 	    output = new ObjectOutputStream(sock.getOutputStream());
-	    System.out.println("Player Connected");
-	    playerData = (String[]) input.readObject();
-	    ppl.addPlayer(sock, playerData[0], Integer.valueOf(playerData[1]));
-	    runTime = new PlayerRunTime(sock, ppl);
-	    connections.add(runTime);
-	    Thread thr = new Thread(runTime);
-	    thr.start();
+	    currentPlayer = (Player) input.readObject();
+	    addPlayer(currentPlayer);
+	    output.writeObject("OK");	    
 	}
     } catch (IOException | ClassNotFoundException ex) {
 	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -45,20 +50,12 @@ Server(int port) {
 
 }
 
-private boolean addThread(PlayerRunTime x) {
-    if (connections.size() > 0) {
-	for (PlayerRunTime tmp : connections) {
-	    //Updates all the threads with the new Players list
-	    tmp.update(ppl);
-	}
-	return true;
+private boolean addPlayer(Player p) {
+    if (ppl.size() > 3) {
+	return false;
     } else {
-	return connections.add(x);
+	return ppl.addPlayer(p);
     }
-}
-
-private void removeThread(int index) {
-    connections.remove(index);
 }
 
 }

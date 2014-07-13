@@ -7,11 +7,11 @@ import java.net.Socket;
 public class PlayerRunTime implements Runnable {
 
 private Socket csocket;
-private Players ppl;
+private PlayerList ppl;
 private ObjectInputStream input;
 private ObjectOutputStream ouput;
 
-PlayerRunTime(Socket csocket, Players ppl) {
+PlayerRunTime(Socket csocket, PlayerList ppl) {
     this.csocket = csocket;
     this.ppl = ppl;
 }
@@ -22,7 +22,7 @@ public void run() {
 
 }
 
-public void update(Players ppl) {
+public void update(PlayerList ppl) {
     this.ppl = ppl;
 }
 
