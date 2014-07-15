@@ -13,6 +13,10 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ *
+ * @author Nikolas
+ */
 public class Server {
 
 private ServerSocket ssock;
@@ -43,23 +47,23 @@ Server(int port) {
 	currentPlayer = (Player) readData(sock);
 	addPlayer(sock, currentPlayer);
 	System.out.println("Game Master Connected: " + currentPlayer.getName());
-	sendData(sock,"OK");
+	sendData(sock, "OK");
 	gms = (GameSettings) readData(sock);
-	sendData(sock,"OK");
+	sendData(sock, "OK");
 	//Adding new players
 	while (gms.getPlayers() != playerList.size()) {
 	    System.out.println("Waiting for other players...");
-	    sock = ssock.accept();	    
+	    sock = ssock.accept();
 	    addStreams(sock, new ObjectInputStream(sock.getInputStream()), new ObjectOutputStream(sock.getOutputStream()));
-	    
+
 	    System.out.println("New connection...");
 	    //Tell if this is a new game
-	    sendData(sock,"EXISTS");
+	    sendData(sock, "EXISTS");
 	    //Read players info
 	    currentPlayer = (Player) readData(sock);
 	    System.out.println("Player Connected: " + currentPlayer.getName());
 	    addPlayer(sock, currentPlayer);
-	    sendData(sock,"OK");
+	    sendData(sock, "OK");
 	}
 	playerData = new String[gms.getPlayers()];
 	System.out.println("Starting Game...");
@@ -87,11 +91,11 @@ private void addStreams(Socket s, ObjectInputStream i, ObjectOutputStream o) {
     socketStreams.put(s, new ObjectStreams(i, o));
 }
 
-private ObjectOutputStream getOutStream(Socket s){
+private ObjectOutputStream getOutStream(Socket s) {
     return socketStreams.get(s).out;
 }
 
-private ObjectInputStream getInStream(Socket s){
+private ObjectInputStream getInStream(Socket s) {
     return socketStreams.get(s).in;
 }
 
@@ -125,7 +129,6 @@ private void endGame() throws IOException {
     announce("Game Over");
     for (Socket s : playerList.keySet()) {
 	s.close();
-	//CAUTION HERE... may cause something to go wrong here....
 	playerList.remove(s);
     }
     System.out.println("Game Ended, player disconnected. Thanks for playing");
