@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,15 +26,14 @@ private ObjectInputStream input;
 private ObjectOutputStream output;
 private String[] playerData;
 private GameSettings gms;
-private HashMap<Socket, Player> playerList;
+private LinkedHashMap<Socket, Player> playerList;
 private HashMap<Socket, ObjectStreams> socketStreams;
 private Player currentPlayer;
 private Pawn pwn;
 private Dice dc;
-
 Server(int port) {
     try {
-	playerList = new HashMap<>();
+	playerList = new LinkedHashMap<>();
 	socketStreams = new HashMap<>();
 	ssock = new ServerSocket(port);
 	System.out.println("Listening");
@@ -46,10 +46,12 @@ Server(int port) {
 	//Exchange info
 	currentPlayer = (Player) readData(sock);
 	addPlayer(sock, currentPlayer);
-	System.out.println("Game Master Connected: " + currentPlayer.getName());
-	sendData(sock, "OK");
+	System.out.println("Game Master Connected: " + 
+		currentPlayer.getName()+
+		" with color: "+
+		currentPlayer.getColour());
 	gms = (GameSettings) readData(sock);
-	sendData(sock, "OK");
+	System.out.println("Game settings: "+gms.toString());
 	//Adding new players
 	while (gms.getPlayers() != playerList.size()) {
 	    System.out.println("Waiting for other players...");
@@ -61,9 +63,11 @@ Server(int port) {
 	    sendData(sock, "EXISTS");
 	    //Read players info
 	    currentPlayer = (Player) readData(sock);
-	    System.out.println("Player Connected: " + currentPlayer.getName());
+	    System.out.println("Game Master Connected: " + 
+		    currentPlayer.getName()+
+		    " with color: "+
+		    currentPlayer.getColour());
 	    addPlayer(sock, currentPlayer);
-	    sendData(sock, "OK");
 	}
 	playerData = new String[gms.getPlayers()];
 	System.out.println("Starting Game...");
@@ -78,13 +82,12 @@ Server(int port) {
 
 }
 
-private boolean addPlayer(Socket s, Player p) {
-    if (playerList.size() > 3) {
-	return false;
-    } else {
-	playerList.put(s, p);
-	return true;
-    }
+private void StartGame() {
+    
+}
+
+private void addPlayer(Socket s, Player p) {
+    playerList.put(s, p);
 }
 
 private void addStreams(Socket s, ObjectInputStream i, ObjectOutputStream o) {
@@ -97,10 +100,6 @@ private ObjectOutputStream getOutStream(Socket s) {
 
 private ObjectInputStream getInStream(Socket s) {
     return socketStreams.get(s).in;
-}
-
-private void StartGame() {
-
 }
 
 private void announce(String data) throws IOException {
@@ -129,9 +128,12 @@ private void endGame() throws IOException {
     announce("Game Over");
     for (Socket s : playerList.keySet()) {
 	s.close();
-	playerList.remove(s);
+	System.out.println("Player: "+ 
+		playerList.get(s).getName()+
+		" disconnected.");
     }
-    System.out.println("Game Ended, player disconnected. Thanks for playing");
+    playerList.clear();
+    System.out.println("Game Ended,all players disconnected.");
     System.exit(1);
 }
 

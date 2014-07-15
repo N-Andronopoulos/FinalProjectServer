@@ -66,7 +66,7 @@ public void setColour(int colour) {
  */
 @Override
 public String toString() {
-    return name + ',' + colour;
+    return name + ':' + colour;
 }
 
 }
