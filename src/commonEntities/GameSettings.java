@@ -1,6 +1,8 @@
-package finalproject.server;
+package commonEntities;
 
-class GameSettings {
+import java.io.Serializable;
+
+public class GameSettings implements Serializable{
 
 private int players;
 private boolean rejoinable;

@@ -1,6 +1,8 @@
-package finalproject.server;
+package commonEntities;
 
-class Dice {
+import java.io.Serializable;
+
+public class Dice implements Serializable{
     private int die1;
     private int die2;
 

@@ -1,6 +1,8 @@
-package finalproject.server;
+package commonEntities;
 
-class Pawn {
+import java.io.Serializable;
+
+public class Pawn implements Serializable{
 
 private int color;
 private String playerName;

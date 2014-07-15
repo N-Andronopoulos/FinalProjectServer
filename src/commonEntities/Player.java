@@ -1,16 +1,18 @@
-package finalproject.server;
+package commonEntities;
 
-import java.net.Socket;
+import java.io.Serializable;
 
-public class Player {
+/**
+ *
+ * @author Nikolas
+ */
+public class Player implements Serializable{
 
 public String name;
-public Socket socket;
 public int colour;
 
-Player(Socket s, String name, int colour) {
+public Player(String name, int colour) {
     this.name = name;
-    this.socket = s;
     this.colour = colour;
 }
 
@@ -20,14 +22,6 @@ public String getName() {
 
 public void setName(String name) {
     this.name = name;
-}
-
-public Socket getSocket() {
-    return socket;
-}
-
-public void setSocket(Socket socket) {
-    this.socket = socket;
 }
 
 public int getColour() {
@@ -40,7 +34,7 @@ public void setColour(int colour) {
 
 @Override
 public String toString() {
-    return socket + name + colour;
+    return name + colour;
 }
 
 }

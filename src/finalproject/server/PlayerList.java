@@ -1,5 +1,6 @@
 package finalproject.server;
 
+import commonEntities.Player;
 import java.util.ArrayList;
 
 public class PlayerList {
