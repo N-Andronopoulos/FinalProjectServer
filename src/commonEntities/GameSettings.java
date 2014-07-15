@@ -37,5 +37,9 @@ public int getNumberPawns() {
 public void setNumberPawns(int numberPawns) {
     this.numberPawns = numberPawns;
 }
+@Override
+public String toString(){
+    return players+","+rejoinable+","+numberPawns;
+}
 
 }

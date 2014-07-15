@@ -21,7 +21,8 @@ private ObjectInputStream input;
 private ObjectOutputStream output;
 private String[] playerData;
 private GameSettings gms;
-private HashMap<Socket,Player> playerList;
+private HashMap<Socket, Player> playerList;
+private HashMap<Socket, ObjectStreams> socketStreams;
 private Player currentPlayer;
 private Pawn pwn;
 private Dice dc;
@@ -29,31 +30,39 @@ private Dice dc;
 Server(int port) {
     try {
 	playerList = new HashMap<>();
+	socketStreams = new HashMap<>();
 	ssock = new ServerSocket(port);
 	System.out.println("Listening");
 	//First Player sets the game settings
 	sock = ssock.accept();
-	input = new ObjectInputStream(sock.getInputStream());
-	output = new ObjectOutputStream(sock.getOutputStream());
+	addStreams(sock, new ObjectInputStream(sock.getInputStream()), new ObjectOutputStream(sock.getOutputStream()));
 	System.out.println("Connection is made");
+	//Tell if this is a new game
+	sendData(sock, "NEW");
 	//Exchange info
-	currentPlayer = (Player) input.readObject();
-	addPlayer(sock,currentPlayer);
-	System.out.println("Game Master Connected: "+currentPlayer.getName());
-	output.writeObject("OK");
-	gms = (GameSettings) input.readObject();
-	output.writeObject("OK");
+	currentPlayer = (Player) readData(sock);
+	addPlayer(sock, currentPlayer);
+	System.out.println("Game Master Connected: " + currentPlayer.getName());
+	sendData(sock,"OK");
+	gms = (GameSettings) readData(sock);
+	sendData(sock,"OK");
+	//Adding new players
 	while (gms.getPlayers() != playerList.size()) {
 	    System.out.println("Waiting for other players...");
-	    sock = ssock.accept();
-	    input = new ObjectInputStream(sock.getInputStream());
-	    output = new ObjectOutputStream(sock.getOutputStream());
+	    sock = ssock.accept();	    
+	    addStreams(sock, new ObjectInputStream(sock.getInputStream()), new ObjectOutputStream(sock.getOutputStream()));
+	    
 	    System.out.println("New connection...");
-	    currentPlayer = (Player) input.readObject();
-	    System.out.println("Player Connected: "+currentPlayer.getName());
-	    addPlayer(sock,currentPlayer);
-	    output.writeObject("OK");
+	    //Tell if this is a new game
+	    sendData(sock,"EXISTS");
+	    //Read players info
+	    currentPlayer = (Player) readData(sock);
+	    System.out.println("Player Connected: " + currentPlayer.getName());
+	    addPlayer(sock, currentPlayer);
+	    sendData(sock,"OK");
 	}
+	playerData = new String[gms.getPlayers()];
+	System.out.println("Starting Game...");
 	syncGame();
 	announce("Game Starts!");
 	StartGame();
@@ -74,41 +83,47 @@ private boolean addPlayer(Socket s, Player p) {
     }
 }
 
+private void addStreams(Socket s, ObjectInputStream i, ObjectOutputStream o) {
+    socketStreams.put(s, new ObjectStreams(i, o));
+}
+
+private ObjectOutputStream getOutStream(Socket s){
+    return socketStreams.get(s).out;
+}
+
+private ObjectInputStream getInStream(Socket s){
+    return socketStreams.get(s).in;
+}
+
 private void StartGame() {
-    while(true){
-	for(Socket s : playerList.keySet()){
-	    //ampla
-	}
-    }
 
 }
 
-private void announce(String data) throws IOException{
-    for(Socket s : playerList.keySet()){
+private void announce(String data) throws IOException {
+    for (Socket s : playerList.keySet()) {
 	sendData(s, data);
     }
 }
 
-private void updatePawn(Pawn p) throws IOException{
-    for(Socket s : playerList.keySet()){
-	sendData(s, p);
+private void updatePawn(Socket origin, Pawn p) throws IOException {
+    for (Socket s : playerList.keySet()) {
+	if (s != origin) {
+	    sendData(s, p);
+	}
     }
 }
-private void sendData(Socket x, Object data) throws IOException{
-    output = new ObjectOutputStream(x.getOutputStream());
-    input = new ObjectInputStream(x.getInputStream());
-    output.writeObject(data);
+
+private void sendData(Socket s, Object data) throws IOException {
+    getOutStream(s).writeObject(data);
 }
 
-private Object readData(Socket x) throws IOException, ClassNotFoundException{
-    output = new ObjectOutputStream(x.getOutputStream());
-    input = new ObjectInputStream(x.getInputStream());
-    return input.readObject();
+private Object readData(Socket s) throws IOException, ClassNotFoundException {
+    return getInStream(s).readObject();
 }
 
-private void endGame() throws IOException{
+private void endGame() throws IOException {
     announce("Game Over");
-    for(Socket s : playerList.keySet()){
+    for (Socket s : playerList.keySet()) {
 	s.close();
 	//CAUTION HERE... may cause something to go wrong here....
 	playerList.remove(s);
@@ -118,11 +133,28 @@ private void endGame() throws IOException{
 }
 
 private void syncGame() throws IOException {
-    for(Socket s : playerList.keySet()){
+    int counter = 0;
+    for (Socket s : playerList.keySet()) {
+	playerData[counter] = playerList.get(s).toString();
+	counter++;
+    }
+    for (Socket s : playerList.keySet()) {
 	sendData(s, gms);
-	sendData(s, playerList);
+	sendData(s, playerData);
     }
     System.out.println("Setup Complete! Starting Game...");
+}
+
+class ObjectStreams {
+
+ObjectInputStream in;
+ObjectOutputStream out;
+
+private ObjectStreams(ObjectInputStream in, ObjectOutputStream out) {
+    this.in = in;
+    this.out = out;
+}
+
 }
 
 }

@@ -6,7 +6,7 @@ import java.io.Serializable;
  *
  * @author Nikolas
  */
-public class Player implements Serializable{
+public class Player implements Serializable {
 
 public String name;
 public int colour;
@@ -34,7 +34,7 @@ public void setColour(int colour) {
 
 @Override
 public String toString() {
-    return name + colour;
+    return name + ',' + colour;
 }
 
 }
