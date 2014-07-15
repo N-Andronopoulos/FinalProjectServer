@@ -1,4 +1,4 @@
-package finalproject.server;
+package server;
 
 public class Main {
 

@@ -1,4 +1,4 @@
-package finalproject.server;
+package server;
 
 import commonEntities.Dice;
 import commonEntities.GameSettings;
