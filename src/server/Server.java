@@ -15,6 +15,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * This class is the game server. On creation runs the initialization.
+ * This connects the Game Master, who sets GameSettings (number of players
+ * and pawns). Afterwards connects the other players, sending them the
+ * current game settings and learning their player info. Lastly initiates
+ * the game and relays Pawn and dice updates, or ends the game if commanded.
  *
  * @author Nikolas
  */
@@ -30,7 +35,12 @@ private LinkedHashMap<Socket, Player> playerList;
 private HashMap<Socket, ObjectStreams> socketStreams;
 private Player currentPlayer;
 
-Server(int port) {
+    /**
+     * Initializes the game.
+     * @param port
+     * Server's port to listen to.
+     */
+    public Server(int port) {
     try {
 	playerList = new LinkedHashMap<>();
 	socketStreams = new HashMap<>();
@@ -48,7 +58,7 @@ Server(int port) {
 	System.out.println("Game Master Connected: "
 		+ currentPlayer.getName()
 		+ " with color: "
-		+ currentPlayer.getColour());
+		+ currentPlayer.getColor());
 	gms = (GameSettings) readData(sock);
 	System.out.println("Game settings: " + gms.toString());
 	//Adding new players
@@ -65,7 +75,7 @@ Server(int port) {
 	    System.out.println("Game Master Connected: "
 		    + currentPlayer.getName()
 		    + " with color: "
-		    + currentPlayer.getColour());
+		    + currentPlayer.getColor());
 	    addPlayer(sock, currentPlayer);
 	}
 	playerData = new String[gms.getPlayers()];
@@ -83,7 +93,12 @@ Server(int port) {
     }
 
 }
-
+    
+/**
+ * Main game information relay and command execution.
+ * @throws IOException
+ * @throws ClassNotFoundException 
+ */
 private void StartGame() throws IOException, ClassNotFoundException {
     String cmd = "", pname = "";
     Dice dc;
@@ -121,23 +136,47 @@ private void StartGame() throws IOException, ClassNotFoundException {
 	}
     }
 }
-
+/**
+ * Adds a Socket and a Player to a map.
+ * @param s current connected Socket
+ * @param p current connected Player
+ */
 private void addPlayer(Socket s, Player p) {
     playerList.put(s, p);
 }
-
+/**
+ * Saves the In/Out Streams in a map.
+ * @param s A player's Socket.
+ * @param i A player's input ObjectStream.
+ * @param o A player's output ObjectStream.
+ */
 private void addStreams(Socket s, ObjectInputStream i, ObjectOutputStream o) {
     socketStreams.put(s, new ObjectStreams(i, o));
 }
-
+/**
+ * Returns the output ObjectStream from the map.
+ * @param s Player's Socket.
+ * @return OutputStream associated with the given Socket.
+ */
 private ObjectOutputStream getOutStream(Socket s) {
     return socketStreams.get(s).out;
 }
 
+/**
+ * Returns the input ObjectStream from the map.
+ * @param s Player's Socket.
+ * @return InputStream associated with the given Socket.
+ */
 private ObjectInputStream getInStream(Socket s) {
     return socketStreams.get(s).in;
 }
 
+/**
+ * Update the player with the new dice that has been rolled.
+ * @param origin Excludes the currently playing player from the update.
+ * @param d The Dice object to update from.
+ * @throws IOException 
+ */
 private void updateDice(Socket origin, Dice d) throws IOException {
     for (Socket s : playerList.keySet()) {
 	if (s != origin) {
@@ -146,12 +185,23 @@ private void updateDice(Socket origin, Dice d) throws IOException {
     }
 }
 
+/**
+ * Sends a String to all players.
+ * @param data The String to send.
+ * @throws IOException 
+ */
 private void announce(String data) throws IOException {
     for (Socket s : playerList.keySet()) {
 	sendData(s, data);
     }
 }
 
+/**
+ * Sends a String to all players excluding the currently playing player.
+ * @param data The String to be sent.
+ * @param origin The player excluded from the recipients.
+ * @throws IOException 
+ */
 private void announce(String data, Socket origin) throws IOException {
     for (Socket s : playerList.keySet()) {
 	if (s != origin) {
@@ -159,7 +209,13 @@ private void announce(String data, Socket origin) throws IOException {
 	}
     }
 }
-
+/**
+ * Updates the other players about the new Pawn position, except the moves 
+ * originating player.
+ * @param origin Moves originating player.
+ * @param p The new Pawn move.
+ * @throws IOException 
+ */
 private void updatePawn(Socket origin, Pawn p) throws IOException {
     for (Socket s : playerList.keySet()) {
 	if (s != origin) {
@@ -167,15 +223,28 @@ private void updatePawn(Socket origin, Pawn p) throws IOException {
 	}
     }
 }
-
+/**
+ * Function to simplify data transmission.
+ * @param s Player socket to send to.
+ * @param data Object to send.
+ * @throws IOException 
+ */
 private void sendData(Socket s, Object data) throws IOException {
     getOutStream(s).writeObject(data);
 }
-
+/**
+ * Function to simplify data transmission.
+ * @param s Player socket to read from.
+ * @throws IOException 
+ */
 private Object readData(Socket s) throws IOException, ClassNotFoundException {
     return getInStream(s).readObject();
 }
-
+/**
+ * Informs all players for the game completion and closes all active
+ * connections.
+ * @throws IOException 
+ */
 private void endGame() throws IOException {
     announce("Game Over");
     for (Socket s : playerList.keySet()) {
@@ -190,7 +259,11 @@ private void endGame() throws IOException {
     playerList.clear();
     System.out.println("Game Ended,all players disconnected.");
 }
-
+/**
+ * Function to sync all players with the player list and game settings.
+ * Excluding the game master who already has the game settings.
+ * @throws IOException 
+ */
 private void syncGame() throws IOException {
     int counter = 0;
     for (Socket s : playerList.keySet()) {
@@ -206,6 +279,9 @@ private void syncGame() throws IOException {
     System.out.println("Setup Complete! Starting Game...");
 }
 
+/**
+ * Holds both in and out ObjectStreams in one object.
+ */
 class ObjectStreams {
 
 ObjectInputStream in;

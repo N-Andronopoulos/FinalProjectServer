@@ -2,13 +2,13 @@ package server;
 
 /**
  *
- * @author tazgr
+ * @author Nikolas
  */
 public class Main {
 
 /**
- *
- * @param args
+ * Starts the server.
+ * @param args No arguments used.
  */
 public static void main(String[] args) {
     new Server(80);

@@ -11,7 +11,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 /**
- *
+ * This is a class the handles the all communication with the server.
+ * On creation initializes with the server and finds out if this is a new game.
+ * 
  * @author Nikolas
  */
 public class ServerInterface {
@@ -28,8 +30,8 @@ private Dice dc;
 
     /**
      *
-     * @param hostname
-     * @param port
+     * @param hostname The servers ip or hostname.
+     * @param port The servers port.
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -42,8 +44,8 @@ private Dice dc;
 }
 
     /**
-     *
-     * @param p
+     * This function tells the server the players name.
+     * @param p The players info.
      * @throws IOException
      */
     public void init(Player p) throws IOException {
@@ -51,9 +53,10 @@ private Dice dc;
 }
 
     /**
-     *
-     * @param p
-     * @param gm
+     * This function tells the server the players name and the sends
+     * the game settings, if this is a new game.
+     * @param p The players info.
+     * @param gm The game settings info.
      * @throws IOException
      */
     public void init(Player p, GameSettings gm) throws IOException {
@@ -62,7 +65,7 @@ private Dice dc;
 }
 
     /**
-     *
+     * This function gets the player list and game settings from the server.
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -82,9 +85,9 @@ private Dice dc;
 }
 
     /**
-     *
-     * @param d
-     * @param p
+     * Sends to the server the Pawn that moved and the current dice roll.
+     * @param d The dices the have been rolled.
+     * @param p A pawns new location.
      * @throws IOException
      */
     public void updatePawn(Dice d, Pawn p) throws IOException{
@@ -94,7 +97,7 @@ private Dice dc;
 }
 
     /**
-     *
+     * Tell the server to end the game.
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -105,8 +108,10 @@ private Dice dc;
 }
 
     /**
-     *
-     * @return
+     * Waits for the server to indicate if its your turn,
+     * announces the completion of the game or moves that have been 
+     * made by other players.
+     * @return One for turn , -1 to end the game or 0 for other players moves.
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -126,7 +131,7 @@ private Dice dc;
 }
 
     /**
-     *
+     * Terminates connections and streams.
      * @throws IOException
      */
     public void terminate() throws IOException{
@@ -136,24 +141,25 @@ private Dice dc;
 }
 
     /**
-     *
-     * @return
+     * This flag indicates if you are the first player to connect, thus 
+     * requiring game setting to be created.
+     * @return The game master flag.
      */
     public boolean getGmFlag() {
     return this.gmFlag;
 }
 
     /**
-     *
-     * @return
+     * 
+     * @return Return an array of the player of the game.
      */
     public ArrayList<Player> getPlayers() {
     return this.ppl;
 }
 
     /**
-     *
-     * @return
+     * 
+     * @return Return a move made by an other player
      */
     public Pawn getPawn() {
     return this.pwn;
@@ -161,15 +167,15 @@ private Dice dc;
 
     /**
      *
-     * @return
+     * @return Return a dice roll made by an other player
      */
     public Dice getDice() {
     return this.dc;
 }
 
     /**
-     *
-     * @param o
+     * Simplifies communications.
+     * @param Sends an Object to the server.
      * @throws IOException
      */
     public void sendToServer(Object o) throws IOException {
@@ -177,8 +183,8 @@ private Dice dc;
 }
 
     /**
-     *
-     * @return
+     * Simplifies communications.
+     * @return An object sent by the server.
      * @throws IOException
      * @throws ClassNotFoundException
      */

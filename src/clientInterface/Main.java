@@ -8,14 +8,14 @@ import java.io.IOException;
 import java.util.Scanner;
 
 /**
- *
+ * Class for testing and demonstration.
  * @author Nikolas
  */
 public class Main {
 
 
 /**
- * @param args the command line arguments
+ * @param args The command line arguments. Not used
      * @throws java.io.IOException
      * @throws java.lang.ClassNotFoundException
  */
