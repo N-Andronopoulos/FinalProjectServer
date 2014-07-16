@@ -29,8 +29,8 @@ private GameSettings gms;
 private LinkedHashMap<Socket, Player> playerList;
 private HashMap<Socket, ObjectStreams> socketStreams;
 private Player currentPlayer;
-private Pawn pwn;
-private Dice dc;
+private boolean endCommand = false;
+
 Server(int port) {
     try {
 	playerList = new LinkedHashMap<>();
@@ -76,14 +76,49 @@ Server(int port) {
 	StartGame();
 	endGame();
 
-    } catch (IOException | ClassNotFoundException ex) {
+    } catch (IOException ex) {
+	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+	System.out.println("Player disconnected.");
+    } catch (ClassNotFoundException ex) {
 	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
     }
 
 }
 
-private void StartGame() {
-    
+private void StartGame() throws IOException, ClassNotFoundException {
+    String cmd = "", pname = "";
+    Dice dc;
+    Pawn pwn;
+    while(true){
+	for(Socket s : playerList.keySet()){
+	    pname = playerList.get(s).name;
+	    System.out.println("=> "+pname+"'s turn!");
+	    sendData(s, "TURN");
+	    cmd = (String) readData(s);
+	    if(cmd.equals("UPDATE")){
+		announce(cmd, s);
+		dc = (Dice) readData(s);
+		System.out.println("=> "+
+			pname+
+			" rolled a "+
+			dc.getDie1()+
+			" and a "+
+			dc.getDie2());
+		updateDice(s,dc);
+		pwn = (Pawn) readData(s);
+		System.out.println("=> "+
+			pname+
+			" moved a pawn to "+
+			pwn.getPosition());
+		updatePawn(s,pwn);
+	    }else
+		System.out.println("=> "+
+			pname+
+			" ended the game.");
+	}
+	if(cmd.equals("END"))
+	    break;
+    }
 }
 
 private void addPlayer(Socket s, Player p) {
@@ -102,17 +137,30 @@ private ObjectInputStream getInStream(Socket s) {
     return socketStreams.get(s).in;
 }
 
+private void updateDice(Socket origin, Dice d) throws IOException{
+    for (Socket s : playerList.keySet()) {
+	if (s != origin) 
+	    sendData(s, d);
+    }    
+}
+
 private void announce(String data) throws IOException {
     for (Socket s : playerList.keySet()) {
 	sendData(s, data);
     }
 }
 
+private void announce(String data, Socket origin) throws IOException {
+    for (Socket s : playerList.keySet()) {
+	if(s != origin)
+	    sendData(s, data);
+    }
+}
+
 private void updatePawn(Socket origin, Pawn p) throws IOException {
     for (Socket s : playerList.keySet()) {
-	if (s != origin) {
+	if (s != origin) 
 	    sendData(s, p);
-	}
     }
 }
 
@@ -131,10 +179,12 @@ private void endGame() throws IOException {
 	System.out.println("Player: "+ 
 		playerList.get(s).getName()+
 		" disconnected.");
+	socketStreams.get(s).in.close();
+	socketStreams.get(s).out.close();
     }
+    socketStreams.clear();
     playerList.clear();
     System.out.println("Game Ended,all players disconnected.");
-    System.exit(1);
 }
 
 private void syncGame() throws IOException {
