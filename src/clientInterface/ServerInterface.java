@@ -26,7 +26,14 @@ private ArrayList<Player> ppl;
 private Pawn pwn;
 private Dice dc;
 
-public ServerInterface(String hostname, int port) throws IOException, ClassNotFoundException {
+    /**
+     *
+     * @param hostname
+     * @param port
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public ServerInterface(String hostname, int port) throws IOException, ClassNotFoundException {
     this.sock = new Socket(hostname, port);
     this.output = new ObjectOutputStream(this.sock.getOutputStream());
     this.input = new ObjectInputStream(this.sock.getInputStream());
@@ -34,16 +41,32 @@ public ServerInterface(String hostname, int port) throws IOException, ClassNotFo
     this.ppl = new ArrayList<>();
 }
 
-public void init(Player p) throws IOException {
+    /**
+     *
+     * @param p
+     * @throws IOException
+     */
+    public void init(Player p) throws IOException {
     sendToServer(p);
 }
 
-public void init(Player p, GameSettings gm) throws IOException {
+    /**
+     *
+     * @param p
+     * @param gm
+     * @throws IOException
+     */
+    public void init(Player p, GameSettings gm) throws IOException {
     sendToServer(p);
     sendToServer(gm);
 }
 
-public void sync() throws IOException, ClassNotFoundException {
+    /**
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public void sync() throws IOException, ClassNotFoundException {
     String[] temp;
     if (gmFlag) {
 	temp = (String[]) readFromServer();
@@ -58,19 +81,36 @@ public void sync() throws IOException, ClassNotFoundException {
     }
 }
 
-public void updatePawn(Dice d, Pawn p) throws IOException{
+    /**
+     *
+     * @param d
+     * @param p
+     * @throws IOException
+     */
+    public void updatePawn(Dice d, Pawn p) throws IOException{
     sendToServer("UPDATE");
     sendToServer(d);
     sendToServer(p);
 }
 
-public void endGame() throws IOException, ClassNotFoundException{
+    /**
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public void endGame() throws IOException, ClassNotFoundException{
     sendToServer("END");
     readFromServer();
     terminate();
 }
 
-public int waitForTurn() throws IOException, ClassNotFoundException{
+    /**
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public int waitForTurn() throws IOException, ClassNotFoundException{
     String temp = (String) readFromServer();
     switch (temp) {
     case "TURN":
@@ -85,33 +125,64 @@ public int waitForTurn() throws IOException, ClassNotFoundException{
     }
 }
 
-public void terminate() throws IOException{
+    /**
+     *
+     * @throws IOException
+     */
+    public void terminate() throws IOException{
     this.input.close();
     this.output.close();
     this.sock.close();    
 }
 
-public boolean getGmFlag() {
+    /**
+     *
+     * @return
+     */
+    public boolean getGmFlag() {
     return this.gmFlag;
 }
 
-public ArrayList<Player> getPlayers() {
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Player> getPlayers() {
     return this.ppl;
 }
 
-public Pawn getPawn() {
+    /**
+     *
+     * @return
+     */
+    public Pawn getPawn() {
     return this.pwn;
 }
 
-public Dice getDice() {
+    /**
+     *
+     * @return
+     */
+    public Dice getDice() {
     return this.dc;
 }
 
-public void sendToServer(Object o) throws IOException {
+    /**
+     *
+     * @param o
+     * @throws IOException
+     */
+    public void sendToServer(Object o) throws IOException {
     output.writeObject(o);
 }
 
-public Object readFromServer() throws IOException, ClassNotFoundException {
+    /**
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public Object readFromServer() throws IOException, ClassNotFoundException {
     return input.readObject();
 }
 }

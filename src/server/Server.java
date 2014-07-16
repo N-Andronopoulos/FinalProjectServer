@@ -45,12 +45,12 @@ Server(int port) {
 	//Exchange info
 	currentPlayer = (Player) readData(sock);
 	addPlayer(sock, currentPlayer);
-	System.out.println("Game Master Connected: " + 
-		currentPlayer.getName()+
-		" with color: "+
-		currentPlayer.getColour());
+	System.out.println("Game Master Connected: "
+		+ currentPlayer.getName()
+		+ " with color: "
+		+ currentPlayer.getColour());
 	gms = (GameSettings) readData(sock);
-	System.out.println("Game settings: "+gms.toString());
+	System.out.println("Game settings: " + gms.toString());
 	//Adding new players
 	while (gms.getPlayers() != playerList.size()) {
 	    System.out.println("Waiting for other players...");
@@ -62,10 +62,10 @@ Server(int port) {
 	    sendData(sock, "EXISTS");
 	    //Read players info
 	    currentPlayer = (Player) readData(sock);
-	    System.out.println("Game Master Connected: " + 
-		    currentPlayer.getName()+
-		    " with color: "+
-		    currentPlayer.getColour());
+	    System.out.println("Game Master Connected: "
+		    + currentPlayer.getName()
+		    + " with color: "
+		    + currentPlayer.getColour());
 	    addPlayer(sock, currentPlayer);
 	}
 	playerData = new String[gms.getPlayers()];
@@ -88,35 +88,37 @@ private void StartGame() throws IOException, ClassNotFoundException {
     String cmd = "", pname = "";
     Dice dc;
     Pawn pwn;
-    while(true){
-	for(Socket s : playerList.keySet()){
+    while (true) {
+	for (Socket s : playerList.keySet()) {
 	    pname = playerList.get(s).name;
-	    System.out.println("=> "+pname+"'s turn!");
+	    System.out.println("=> " + pname + "'s turn!");
 	    sendData(s, "TURN");
 	    cmd = (String) readData(s);
-	    if(cmd.equals("UPDATE")){
+	    if (cmd.equals("UPDATE")) {
 		announce(cmd, s);
 		dc = (Dice) readData(s);
-		System.out.println("=> "+
-			pname+
-			" rolled a "+
-			dc.getDie1()+
-			" and a "+
-			dc.getDie2());
-		updateDice(s,dc);
+		System.out.println("=> "
+			+ pname
+			+ " rolled a "
+			+ dc.getDie1()
+			+ " and a "
+			+ dc.getDie2());
+		updateDice(s, dc);
 		pwn = (Pawn) readData(s);
-		System.out.println("=> "+
-			pname+
-			" moved a pawn to "+
-			pwn.getPosition());
-		updatePawn(s,pwn);
-	    }else
-		System.out.println("=> "+
-			pname+
-			" ended the game.");
+		System.out.println("=> "
+			+ pname
+			+ " moved a pawn to "
+			+ pwn.getPosition());
+		updatePawn(s, pwn);
+	    } else {
+		System.out.println("=> "
+			+ pname
+			+ " ended the game.");
+	    }
 	}
-	if(cmd.equals("END"))
+	if (cmd.equals("END")) {
 	    break;
+	}
     }
 }
 
@@ -136,11 +138,12 @@ private ObjectInputStream getInStream(Socket s) {
     return socketStreams.get(s).in;
 }
 
-private void updateDice(Socket origin, Dice d) throws IOException{
+private void updateDice(Socket origin, Dice d) throws IOException {
     for (Socket s : playerList.keySet()) {
-	if (s != origin) 
+	if (s != origin) {
 	    sendData(s, d);
-    }    
+	}
+    }
 }
 
 private void announce(String data) throws IOException {
@@ -151,15 +154,17 @@ private void announce(String data) throws IOException {
 
 private void announce(String data, Socket origin) throws IOException {
     for (Socket s : playerList.keySet()) {
-	if(s != origin)
+	if (s != origin) {
 	    sendData(s, data);
+	}
     }
 }
 
 private void updatePawn(Socket origin, Pawn p) throws IOException {
     for (Socket s : playerList.keySet()) {
-	if (s != origin) 
+	if (s != origin) {
 	    sendData(s, p);
+	}
     }
 }
 
@@ -175,9 +180,9 @@ private void endGame() throws IOException {
     announce("Game Over");
     for (Socket s : playerList.keySet()) {
 	s.close();
-	System.out.println("Player: "+ 
-		playerList.get(s).getName()+
-		" disconnected.");
+	System.out.println("Player: "
+		+ playerList.get(s).getName()
+		+ " disconnected.");
 	socketStreams.get(s).in.close();
 	socketStreams.get(s).out.close();
     }
@@ -193,8 +198,9 @@ private void syncGame() throws IOException {
 	counter++;
     }
     for (Socket s : playerList.keySet()) {
-	if(!playerList.get(s).getName().equals(playerData[0].split(":")[0]))
+	if (!playerList.get(s).getName().equals(playerData[0].split(":")[0])) {
 	    sendData(s, gms);
+	}
 	sendData(s, playerData);
     }
     System.out.println("Setup Complete! Starting Game...");

@@ -11,7 +11,12 @@ public class Dice implements Serializable {
 private int die1;
 private int die2;
 
-public Dice(int die1, int die2){
+    /**
+     *
+     * @param die1
+     * @param die2
+     */
+    public Dice(int die1, int die2){
     this.die1 = die1;
     this.die2 = die2;
 }
