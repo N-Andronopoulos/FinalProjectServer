@@ -29,7 +29,6 @@ private GameSettings gms;
 private LinkedHashMap<Socket, Player> playerList;
 private HashMap<Socket, ObjectStreams> socketStreams;
 private Player currentPlayer;
-private boolean endCommand = false;
 
 Server(int port) {
     try {
@@ -194,7 +193,8 @@ private void syncGame() throws IOException {
 	counter++;
     }
     for (Socket s : playerList.keySet()) {
-	sendData(s, gms);
+	if(!playerList.get(s).getName().equals(playerData[0].split(":")[0]))
+	    sendData(s, gms);
 	sendData(s, playerData);
     }
     System.out.println("Setup Complete! Starting Game...");
