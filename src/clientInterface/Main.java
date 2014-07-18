@@ -65,7 +65,7 @@ public class Main {
 		    break;
 		} else //Updates the server with Dice and Pawn
 		{
-		    srv.updatePawn(new Dice(2, 5), new Pawn(1, "taz", 33));
+		    srv.updatePawn(new Dice(2), new Pawn(1, "taz", 33));
 		}
 	    } else if (resp == -1) //Server told the client that the game has ended
 	    {

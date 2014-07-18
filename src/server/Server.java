@@ -11,8 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is the game server. On creation runs the initialization. This
@@ -39,59 +37,52 @@ public class Server {
      * Initializes the game.
      *
      * @param port Server's port to listen to.
+     * @throws java.io.IOException
+     * @throws java.lang.ClassNotFoundException
      */
-    public Server(int port) {
-	try {
-	    playerList = new LinkedHashMap<>();
-	    socketStreams = new HashMap<>();
-	    ssock = new ServerSocket(port);
-	    System.out.println("Listening");
-	    //First Player sets the game settings
+    public Server(int port) throws IOException, ClassNotFoundException {
+	playerList = new LinkedHashMap<>();
+	socketStreams = new HashMap<>();
+	ssock = new ServerSocket(port);
+	System.out.println("Listening");
+	//First Player sets the game settings
+	sock = ssock.accept();
+	addStreams(sock, new ObjectInputStream(sock.getInputStream()), new ObjectOutputStream(sock.getOutputStream()));
+	System.out.println("Connection is made");
+	//Tell if this is a new game
+	sendData(sock, "NEW");
+	//Exchange info
+	currentPlayer = (Player) readData(sock);
+	addPlayer(sock, currentPlayer);
+	System.out.println("Game Master Connected: "
+		+ currentPlayer.getName()
+		+ " with color: "
+		+ currentPlayer.getColor());
+	gms = (GameSettings) readData(sock);
+	System.out.println("Game settings: " + gms.toString());
+	//Adding new players
+	while (gms.getPlayers() != playerList.size()) {
+	    System.out.println("Waiting for other players...");
 	    sock = ssock.accept();
 	    addStreams(sock, new ObjectInputStream(sock.getInputStream()), new ObjectOutputStream(sock.getOutputStream()));
-	    System.out.println("Connection is made");
+
+	    System.out.println("New connection...");
 	    //Tell if this is a new game
-	    sendData(sock, "NEW");
-	    //Exchange info
+	    sendData(sock, "EXISTS");
+	    //Read players info
 	    currentPlayer = (Player) readData(sock);
-	    addPlayer(sock, currentPlayer);
 	    System.out.println("Game Master Connected: "
 		    + currentPlayer.getName()
 		    + " with color: "
 		    + currentPlayer.getColor());
-	    gms = (GameSettings) readData(sock);
-	    System.out.println("Game settings: " + gms.toString());
-	    //Adding new players
-	    while (gms.getPlayers() != playerList.size()) {
-		System.out.println("Waiting for other players...");
-		sock = ssock.accept();
-		addStreams(sock, new ObjectInputStream(sock.getInputStream()), new ObjectOutputStream(sock.getOutputStream()));
-
-		System.out.println("New connection...");
-		//Tell if this is a new game
-		sendData(sock, "EXISTS");
-		//Read players info
-		currentPlayer = (Player) readData(sock);
-		System.out.println("Game Master Connected: "
-			+ currentPlayer.getName()
-			+ " with color: "
-			+ currentPlayer.getColor());
-		addPlayer(sock, currentPlayer);
-	    }
-	    playerData = new String[gms.getPlayers()];
-	    System.out.println("Starting Game...");
-	    syncGame();
-	    announce("Game Starts!");
-	    StartGame();
-	    endGame();
-
-	} catch (IOException ex) {
-	    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	    System.out.println("Player disconnected.");
-	} catch (ClassNotFoundException ex) {
-	    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+	    addPlayer(sock, currentPlayer);
 	}
-
+	playerData = new String[gms.getPlayers()];
+	System.out.println("Starting Game...");
+	syncGame();
+	announce("Game Starts!");
+	StartGame();
+	endGame();
     }
 
     /**
@@ -116,9 +107,7 @@ public class Server {
 		    System.out.println("=> "
 			    + pname
 			    + " rolled a "
-			    + dc.getDie1()
-			    + " and a "
-			    + dc.getDie2());
+			    + dc.toString());
 		    updateDice(s, dc);
 		    pwn = (Pawn) readData(s);
 		    System.out.println("=> "

@@ -16,6 +16,7 @@ import java.util.ArrayList;
  *
  * @author Nikolas
  */
+
 public class ServerInterface {
 
     private Socket sock;

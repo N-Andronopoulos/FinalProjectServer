@@ -13,6 +13,7 @@ public class Pawn implements Serializable {
     private int color;
     private String playerName;
     private int position;
+    private int prevPosition;
 
     /**
      * Passes the field of the object.
@@ -23,6 +24,13 @@ public class Pawn implements Serializable {
      */
     public Pawn(int color, String playerName, int position) {
 	this.color = color;
+	this.playerName = playerName;
+	this.position = position;
+    }
+    
+    public Pawn(int color, String playerName, int position, int prevposition) {
+	this.color = color;
+	this.prevPosition = prevposition;
 	this.playerName = playerName;
 	this.position = position;
     }
