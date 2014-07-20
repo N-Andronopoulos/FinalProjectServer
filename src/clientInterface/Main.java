@@ -24,6 +24,7 @@ public class Main {
 	Player pl;
 	GameSettings gms;
 	String[] userInfo;
+	Dice dc;
 	int resp = 0;
 	//Connection stuff
 	ServerInterface srv = new ServerInterface("localhost", 80);
@@ -58,14 +59,18 @@ public class Main {
 	    //from server
 	    resp = srv.waitForTurn();
 	    if (resp == 0) {
-		System.out.println(srv.getDice() + "\n" + srv.getPawn());
+		System.out.println(srv.getDice().getDie1() + "\n" + srv.getPawn());
 	    } else if (resp == 1) {
+		System.out.println("This your turn!");
 		if (counter == 10) {
 		    srv.endGame();
 		    break;
 		} else //Updates the server with Dice and Pawn
-		{		    
-		    srv.updatePawn(new Dice((int)(Math.random()*6+1)), 
+		{
+		    dc = new Dice((int)(Math.random()*6+1));
+		    System.out.println("You rolled a "+dc.getDie1());
+		    System.out.print("Set Pawn position: ");
+		    srv.updatePawn(dc, 
 			    new Pawn(
 				pl.getColor(),
 				pl.getName(),

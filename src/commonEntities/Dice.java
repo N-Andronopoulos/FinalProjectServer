@@ -3,43 +3,34 @@ package commonEntities;
 import java.io.Serializable;
 
 /**
- * This class describes the two dices in the game.
  *
  * @author Nikolas
  */
 public class Dice implements Serializable {
 
-    private int die;
+private int die1;
 
-    /**
-     *
-     * @param die1 The first die.
-     */
-    public Dice(int die) {
-	this.die = die;
-    }
+public Dice(int die1){
+    this.die1 = die1;
+}
+/**
+ *
+ * @return
+ */
+public int getDie1() {
+    return die1;
+}
 
-    /**
-     *
-     * @return
-     */
-    public int getDie() {
-	return die;
-    }
+/**
+ *
+ * @param die1
+ */
+public void setDie1(int die1) {
+    this.die1 = die1;
+}
 
-    /**
-     *
-     * @param die
-     */
-    public void setDie(int die) {
-	this.die = die;
-    }
-    /**
-     * 
-     * @return Returns the die as a String.
-     */
-    @Override
-    public String toString(){
-	return this.die+"";
-    }
+/**
+ *
+ * @return
+ */
 }
