@@ -107,13 +107,13 @@ public class Server {
 		    System.out.println("=> "
 			    + pname
 			    + " rolled a "
-			    + dc.toString());
+			    + dc.getDie1());
 		    updateDice(s, dc);
 		    pwn = (Pawn) readData(s);
 		    System.out.println("=> "
 			    + pname
-			    + " moved a pawn to "
-			    + pwn.getPosition());
+			    + " moved "
+			    + pwn);
 		    updatePawn(s, pwn);
 		} else {
 		    System.out.println("=> "
