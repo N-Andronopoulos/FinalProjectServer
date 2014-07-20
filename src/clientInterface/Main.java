@@ -64,8 +64,12 @@ public class Main {
 		    srv.endGame();
 		    break;
 		} else //Updates the server with Dice and Pawn
-		{
-		    srv.updatePawn(new Dice(2), new Pawn(1, "taz", 33));
+		{		    
+		    srv.updatePawn(new Dice((int)(Math.random()*6+1)), 
+			    new Pawn(
+				pl.getColor(),
+				pl.getName(),
+				Integer.valueOf(reader.nextLine())));
 		}
 	    } else if (resp == -1) //Server told the client that the game has ended
 	    {
